@@ -3,11 +3,14 @@ const express = require('express');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const util = require('util');
 
 // Variables
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 const app = express();
 let db = require('./db/db.json');
+const readUtility = util.promisify(fs.readFile);
+const writeUtility = util.promisify(fs.writeFile);
 
 // Middleware
 app.use(express.json());
@@ -16,19 +19,9 @@ app.use(express.static('public'));
 
 
 // Handle API GET calls
-app.get('/api/notes', (req, res) => 
-    res.json(db)
-);
-
-app.get('/api/notes/:note_id', (req, res) => {
-    for(let i = 0; i < notes.length; i++){
-        const currentNote = notes[i];
-        if(currentNote.note_id === req.params.note_id) {
-        res.status(200).json({currentNote});
-        }
-        return;
-    }
-})
+app.get('/api/notes', (req, res) => {
+    readUtility('./db/db.json').then((data) => res.json(JSON.parse(data)));
+});
 
 // Handle API POST calls
 app.post('/api/notes', (req, res) => {
@@ -42,24 +35,13 @@ app.post('/api/notes', (req, res) => {
             id: uuidv4(),
         };
 
-        fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            console.log(data);
-            if(err){
-                console.error(err);
-            } else {
+        readUtility('./db/db.json')
+            .then((data) => {
                 const existingNotes = JSON.parse(data);
-
                 existingNotes.push(newNote);
+                writeUtility('./db/db.json', JSON.stringify(existingNotes));
+            });
 
-                fs.writeFile('./db/db.json',JSON.stringify(existingNotes, null, 4),
-                (writeErr) =>
-                writeErr
-              ? console.error(writeErr)
-              : console.info('Successfully updated reviews!')
-              );
-            }
-        });
-        
         const response = {
             status: 'success',
             body: newNote,
@@ -67,10 +49,29 @@ app.post('/api/notes', (req, res) => {
 
         console.log(response);
         res.status(201).json(response);
-         
-        } else {
-            res.status(500).json('Error in saving Note');
+
+    } else {
+        res.status(500).json('Error in saving Note');
     }
+});
+
+// Handle Delete calls
+app.delete('/api/notes/:note_id', (req, res) => {
+    readUtility('./db/db.json')
+        .then((data) => {
+            let notes = JSON.parse(data);
+
+            console.log(`DELETE REQUEST RECEIVED: ${req.params.note_id}`)
+            for (let i = 0; i < notes.length; i++) {
+                let currentNote = notes[i];
+                if (currentNote.id === req.params.note_id) {
+                    notes.splice(i, 1);
+                    writeUtility('./db/db.json', JSON.stringify(notes))
+                    return res.status(200).json(`${currentNote} was removed successfully!`);
+                }
+            }
+            return res.status(500).json('Error in deleting Note');
+        })
 });
 
 
