@@ -50,7 +50,6 @@ app.post('/api/notes', (req, res) => {
             body: newNote,
         };
 
-        console.log(response);
         res.status(201).json(response);
 
     } else {
@@ -65,7 +64,6 @@ app.delete('/api/notes/:note_id', (req, res) => {
         .then((data) => {
             let notes = JSON.parse(data);
 
-            console.log(`DELETE REQUEST RECEIVED: ${req.params.note_id}`)
             for (let i = 0; i < notes.length; i++) {
                 let currentNote = notes[i];
                 if (currentNote.id === req.params.note_id) {
@@ -74,7 +72,9 @@ app.delete('/api/notes/:note_id', (req, res) => {
                     return res.status(200).json(`${currentNote} was removed successfully!`);
                 }
             }
+
             return res.status(500).json('Error in deleting Note');
+
         })
 });
 
