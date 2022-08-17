@@ -43,7 +43,7 @@ AS A small business owner I WANT to be able to write and save notes SO THAT I ca
 
 Repository: https://github.com/alvinkp/SuperNoteTaker
 
-Heroku Deployment: https://drive.google.com/file/d/1l87W4yQzagW4urRg8o649gaRX-U0Sgbc/view
+Heroku Deployment: https://morning-plains-61977.herokuapp.com/
 
 ---
 
