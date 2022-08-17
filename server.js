@@ -59,14 +59,14 @@ app.post('/api/notes', (req, res) => {
 
 
 // Handle Delete calls
-app.delete('/api/notes/:note_id', (req, res) => {
+app.delete('/api/notes/:id', (req, res) => {
     readUtility('./db/db.json')
         .then((data) => {
             let notes = JSON.parse(data);
 
             for (let i = 0; i < notes.length; i++) {
                 let currentNote = notes[i];
-                if (currentNote.id === req.params.note_id) {
+                if (currentNote.id === req.params.id) {
                     notes.splice(i, 1);
                     writeUtility('./db/db.json', JSON.stringify(notes))
                     return res.status(200).json(`${currentNote} was removed successfully!`);
