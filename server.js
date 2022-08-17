@@ -9,6 +9,8 @@ const util = require('util');
 const PORT = process.env.PORT || 3001;
 const app = express();
 let db = require('./db/db.json');
+
+// Utility functions
 const readUtility = util.promisify(fs.readFile);
 const writeUtility = util.promisify(fs.writeFile);
 
@@ -22,6 +24,7 @@ app.use(express.static('public'));
 app.get('/api/notes', (req, res) => {
     readUtility('./db/db.json').then((data) => res.json(JSON.parse(data)));
 });
+
 
 // Handle API POST calls
 app.post('/api/notes', (req, res) => {
@@ -55,6 +58,7 @@ app.post('/api/notes', (req, res) => {
     }
 });
 
+
 // Handle Delete calls
 app.delete('/api/notes/:note_id', (req, res) => {
     readUtility('./db/db.json')
@@ -85,6 +89,7 @@ app.get('/notes', (req, res) =>
 app.get('*', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/index.html'))
 );
+
 
 // Launch the server 
 app.listen(PORT, () =>
